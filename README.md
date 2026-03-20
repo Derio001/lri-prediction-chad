@@ -1,61 +1,154 @@
-# Chad Child Health: Predicting Lower Respiratory Infection (LRI)
+# 🫁 LRI Risk Prediction in Chadian Children Under Five
 
-[![Python](https://img.shields.io/badge/Python-3.8%2B-blue)](https://www.python.org/)
-[![DHS Data](https://img.shields.io/badge/Data-DHS_KR-green)](https://dhsprogram.com/data/dataset/Chad_Standard-DHS_2014.cfm?flag=0)
-[![Machine Learning](https://img.shields.io/badge/ML-Classification-orange)](https://scikit-learn.org/)
+[![Python](https://img.shields.io/badge/Python-3.8+-blue)](https://www.python.org/)
+[![Data](https://img.shields.io/badge/Data-DHS_Chad_2014-green)](https://dhsprogram.com/)
+[![ML](https://img.shields.io/badge/ML-XGBoost%20%7C%20LightGBM%20%7C%20CatBoost-orange)](https://scikit-learn.org/)
+[![Status](https://img.shields.io/badge/Status-Active-brightgreen)]()
 
-This project develops a machine learning pipeline to predict **Lower Respiratory Infection (LRI)** in children under five in Chad, utilizing the Demographic and Health Survey (DHS) Children's Recode (KR) dataset. The goal is to identify key risk factors and build a predictive model to assist in health interventions.
-
-## Project Overview
-
-Lower Respiratory Infection remains a leading cause of childhood mortality in sub-Saharan Africa. This repository implements an end-to-end data science workflow—from raw data cleaning and target construction to advanced class-imbalance handling (SMOTE) and model evaluation.
-
-### Key Features
-- **Curated Target Construction**: Logic-based LRI labeling using `H31`, `H31B`, and `H31C` survey columns.
-- **Informed Undersampling**: Removing low-quality survey records (high NaN counts in negative cases).
-- **Statistical Feature Selection**: T-tests for numerical signficance and Chi-Square tests for categorical importance.
-- **Automated Preprocessing**: Handling "Don't know" responses, median/mode imputation, and dummy encoding.
-- **SMOTE Balancing**: Addressing class imbalance by generating synthetic positive cases.
-- **Multi-Model Benchmarking**: Support for 8+ algorithms including XGBoost, LightGBM, CatBoost, and Random Forest.
-
-## Technologies
-- **Core**: Python, Pandas, NumPy
-- **ML Frameworks**: Scikit-Learn, XGBoost, LightGBM, CatBoost, Imbalanced-learn (SMOTE)
-- **Visualization**: Matplotlib, Seaborn
-
-## Project Structure
-- `Mahamat_LRI_CHAD.ipynb`: Main analysis and experimentation notebook.
-- `Mahamat_LRI_CHAD.py`: Cleaned Python script version of the full pipeline.
-- `chad_dhs_kr.csv`: The primary dataset (DHS KR recode for Chad).
-- `verify_data.py`: Quick diagnostic script for checking target distribution.
-- `extract.py`: Utility script to extract code cells from Jupyter notebooks.
-
-## How to Run
-
-1. **Install Dependencies**:
-   ```bash
-   pip install pandas numpy matplotlib seaborn scikit-learn xgboost lightgbm catboost imbalanced-learn
-   ```
-
-2. **Prepare Data**:
-   Ensure `chad_dhs_kr.csv` is in the project root.
-
-3. **Run the Pipeline**:
-   ```bash
-   python Mahamat_LRI_CHAD.py
-   ```
-
-## Methodology & Insights
-The project follows a rigorous pipeline to avoid data leakage:
-1. **Cleaning**: Dropping rows with missing primary labels.
-2. **Splitting**: Stratified 70/30 Train/Test split *before* any feature selection or imputation.
-3. **Screening**: Dropping columns with >60% missing values.
-4. **Balancing**: SMOTE is applied strictly to the training set to prevent leakage.
-5. **Evaluation**: Models are evaluated using Accuracy, Recall, and Precision to account for class imbalance.
-
-### Key Findings
-- Nutritional indicators (like Weight-for-Height Z-score) and mother's BMI show significant correlation with LRI susceptibility.
-- Ensemble tree models (XGBoost/LightGBM) consistently outperform linear models in handling the high-dimensional survey data.
+> **Lower Respiratory Infection (LRI) is one of the leading causes of death in children under five in Chad.**  
+> This project builds a machine learning pipeline to predict LRI risk at the individual child level — enabling  
+> targeted health interventions where resources are most scarce.
 
 ---
-*Created as part of a Health Analytics study focused on Chad.*
+
+## 🌍 Why This Matters
+
+Chad has one of the highest child mortality rates in the world. LRI alone accounts for a significant share of
+under-five deaths, yet healthcare infrastructure remains severely limited outside N'Djamena.
+
+**The core question this project answers:**  
+*"Given a child's demographic profile, household conditions, and nutritional status — how likely are they  
+to develop a Lower Respiratory Infection?"*
+
+Answering this with data can help NGOs, ministries of health, and field workers **prioritize interventions**
+before a child gets critically ill.
+
+---
+
+## 📊 Dataset
+
+- **Source**: [DHS Program — Chad Standard DHS 2014](https://dhsprogram.com/data/dataset/Chad_Standard-DHS_2014.cfm)
+- **File**: Children's Recode (KR) — household survey of mothers and children under 5
+- **Size**: National representative sample across all regions of Chad
+- **Key Variables**: Child age/sex, nutritional indicators (WHZ, BMI), mother's education, household wealth,
+  access to healthcare, vaccination status, water/sanitation conditions
+
+---
+
+## 🔬 Methodology
+
+The pipeline is designed to be **leak-free and reproducible**:
+```
+Raw DHS Data
+    ↓
+Target Construction  (H31, H31B, H31C columns → binary LRI label)
+    ↓
+Train/Test Split  (Stratified 70/30 — split BEFORE any feature engineering)
+    ↓
+Feature Screening  (Drop >60% missing | T-test + Chi-Square selection)
+    ↓
+Preprocessing  (Median/mode imputation | dummy encoding | "Don't know" handling)
+    ↓
+SMOTE Balancing  (Synthetic oversampling on training set ONLY)
+    ↓
+Model Benchmarking  (8+ algorithms evaluated)
+    ↓
+Evaluation  (Accuracy, Recall, Precision — with focus on Recall for health context)
+```
+
+---
+
+## 🤖 Models Benchmarked
+
+| Model | Notes |
+|---|---|
+| Logistic Regression | Baseline |
+| Decision Tree | Interpretability |
+| Random Forest | Ensemble baseline |
+| **XGBoost** | Best overall performance |
+| **LightGBM** | Fast, competitive accuracy |
+| CatBoost | Strong on categorical features |
+| SVM | Tested with scaled features |
+| KNN | Distance-based baseline |
+
+---
+
+## 📌 Key Findings
+
+- **Nutritional status** (Weight-for-Height Z-score) is the strongest individual predictor of LRI risk
+- **Mother's BMI** shows significant correlation — maternal health directly impacts child vulnerability  
+- **Household wealth index** and **access to clean water** are among the top socioeconomic risk factors
+- **Ensemble tree models** (XGBoost, LightGBM) consistently outperform linear models on this high-dimensional survey data
+- SMOTE improved recall for the minority (positive LRI) class significantly without data leakage
+
+---
+
+## 🚀 How to Run
+```bash
+# 1. Clone the repo
+git clone https://github.com/Derio001/lri-prediction-chad.git
+cd lri-prediction-chad
+
+# 2. Install dependencies
+pip install pandas numpy matplotlib seaborn scikit-learn xgboost lightgbm catboost imbalanced-learn
+
+# 3. Add the DHS dataset (requires free DHS program registration)
+# Place chad_dhs_kr.csv in the project root
+
+# 4. Run the full pipeline
+python Mahamat_LRI_CHAD.py
+
+# Or explore interactively
+jupyter notebook Mahamat_LRI_Chad.ipynb
+```
+
+> **Note on Data Access**: The DHS dataset requires a free registration at [dhsprogram.com](https://dhsprogram.com).
+> Chad 2014 KR recode is publicly available upon request.
+
+---
+
+## 📁 Project Structure
+```
+lri-prediction-chad/
+│
+├── Mahamat_LRI_Chad.ipynb      # Full analysis notebook (EDA → modeling → evaluation)
+├── Mahamat_LRI_CHAD.py         # Clean script version of the pipeline
+├── verify_data.py              # Diagnostic: check target distribution
+├── extract.py                  # Utility: extract code cells from notebooks
+└── README.md
+```
+
+---
+
+## 🔭 Future Work
+
+- [ ] Incorporate 2023/2024 DHS data when available for Chad
+- [ ] Add regional/geographic disaggregation (Sahel vs. southern regions)
+- [ ] Build a lightweight Streamlit dashboard for field worker use
+- [ ] Extend to other child health outcomes (malnutrition, malaria, diarrheal disease)
+- [ ] Explore transfer learning from similar DHS datasets (Niger, Mali, Sudan)
+
+---
+
+## 👤 Author
+
+**Mahamat Hanga Derio**  
+M.Tech Data Science — Christ University, Bangalore  
+Chadian national | Focused on data-driven solutions for Sub-Saharan African health & development
+
+📬 Open to collaboration with NGOs, research institutions, and public health organizations  
+🔗 [GitHub Profile](https://github.com/Derio001)
+
+---
+
+## 📄 Citation
+
+If you use this work, please cite:
+```
+Mahamat Hanga Derio (2024). LRI Risk Prediction in Chadian Children Under Five.
+GitHub. https://github.com/Derio001/lri-prediction-chad
+```
+
+---
+
+*This project is part of a broader effort to apply data science for public health impact in Chad and the Lake Chad Basin region.*
